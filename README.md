@@ -131,6 +131,39 @@ public function oneloginRedirect()
     }
 ```
 
+### Reamark Please Setting up Jetstream in Laravel 
+
+composer require laravel/jetstream
+
+php artisan jetstream:install livewire
+
+npm install
+
+npm run dev
+
+### Step 11. Update File resources/views/auth/login.blade.php add Onelogin Button
+
+```php
+...
+           <div class="flex items-center justify-end mt-4">
+                @if (Route::has('password.request'))
+                    <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('password.request') }}">
+                        {{ __('Forgot your password?') }}
+                    </a>
+                @endif
+
+                <x-jet-button class="ml-4">
+                    {{ __('Log in') }}
+                </x-jet-button>
+            </div>
+            {{-- Login with Onelogin --}}
+            <div class="flex items-center justify-end mt-4">
+                <a class="btn" href="{{ url('auth/onelogin') }}"
+                    style="background: #3B5499; color: #ffffff; padding: 10px; width: 100%; text-align: center; display: block; border-radius:3px;">
+                    Login with Onelogin
+                </a>
+            </div>
+```
 
 ### Test  > php artisan serve
 
