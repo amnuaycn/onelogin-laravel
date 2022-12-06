@@ -131,7 +131,7 @@ public function oneloginRedirect()
     }
 ```
 
-### Reamark Please Setting up Jetstream in Laravel 
+### Setting up Jetstream in Laravel 
 
 composer require laravel/jetstream
 
