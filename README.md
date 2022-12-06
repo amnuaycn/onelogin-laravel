@@ -1,3 +1,140 @@
+## Onelogin
+#### Step 1. Create Module Onelogin > https://github.com/SocialiteProviders/Generators
+
+php artisan make:socialite Onelogin --spec=oauth2 --author=Amnuay --email=ch.amnuay@gmail.com
+
+#### Step 2. Edit code  SocialiteProviders/src/Onelogin/Provider.php  
+Add function from document https://developers.onelogin.com/openid-connect
+
+### Step 3. Copy .env.example to .env
+Edit  Add 
+```
+ONELOGIN_CLIENT_ID=<YOUR_CLIENT_ID>
+ONELOGIN_CLIENT_SECRET=<YOUR_CLIENT_SECRET>
+ONELOGIN_REDIRECT_URI=http://localhost:8000/auth/onelogin/callback
+ONELOGIN_BASE_URL=https://<SUBDOMAIN>.onelogin.com/oidc/2
+```
+
+### Step 4. Replace database/migrations/2014_10_12_000000_create_users_table.php with:
+```php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->rememberToken();
+            $table->foreignId('current_team_id')->nullable();
+            $table->string('profile_photo_path', 2048)->nullable();
+            $table->text('token');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('users');
+    }
+};
+```
+
+### Step 5. Edit app/Models/User.php with:
+```php
+
+protected $fillable = [
+        'name',
+        'email',
+        'token',
+    ];
+```
+### Step 6. php artisan migrate
+
+### Step 7. Add to the $providers array in config/app.php to configure the Socialite provider:
+```php
+$providers = [
+    ...
+    \SocialiteProviders\Manager\ServiceProvider::class,
+    ...
+]
+```
+### Step 8. Add the following to the $listen array in app/Providers/EventServiceProvider.php:
+```php
+protected $listen = [
+       ...
+        \SocialiteProviders\Manager\SocialiteWasCalled::class => [
+            'SocialiteProviders\\Onelogin\\OneloginExtendSocialite@handle',
+        ],
+    ];
+```
+
+### Step 9. update config/services.php:
+```php
+ 'onelogin' => [
+        'client_id' => env('ONELOGIN_CLIENT_ID'),
+        'client_secret' => env('ONELOGIN_CLIENT_SECRET'),
+        'redirect' => env('ONELOGIN_REDIRECT_URI'),
+        'base_url' => env('ONELOGIN_BASE_URL')
+    ],
+```
+
+### Step 10. Generate and Configure Controller
+php artisan make:controller OneloginController
+```php
+public function oneloginRedirect()
+    {
+        return Socialite::driver('onelogin')->redirect();
+    }
+
+    public function callbackOnelogin()
+    {
+        try {
+    
+            $user = Socialite::driver('onelogin')->user();
+            $isUser = User::where('email', $user->email)->first();
+     
+            if($isUser){
+                Auth::login($isUser);
+                return redirect('/dashboard');
+            }else{
+                $createUser = User::create([
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'token' => $user->token
+                ]);
+    
+                Auth::login($createUser);
+                return redirect('/dashboard');
+            }
+    
+        } catch (Exception $exception) {
+            dd($exception->getMessage());
+        }
+    }
+```
+
+
+### Test  > php artisan serve
+
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
