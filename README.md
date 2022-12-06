@@ -1,9 +1,9 @@
 ## Onelogin
-#### Step 1. Create Module Onelogin > https://github.com/SocialiteProviders/Generators
+### Step 1. Create Module Onelogin > https://github.com/SocialiteProviders/Generators
 
 php artisan make:socialite Onelogin --spec=oauth2 --author=Amnuay --email=ch.amnuay@gmail.com
 
-#### Step 2. Edit code  SocialiteProviders/src/Onelogin/Provider.php  
+### Step 2. Edit code  SocialiteProviders/src/Onelogin/Provider.php  
 Add function from document https://developers.onelogin.com/openid-connect
 
 ### Step 3. Copy .env.example to .env
